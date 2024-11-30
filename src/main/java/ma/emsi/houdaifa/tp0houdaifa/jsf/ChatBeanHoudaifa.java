@@ -1,6 +1,5 @@
 package ma.emsi.houdaifa.tp0houdaifa.jsf;
 
-
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.model.SelectItem;
@@ -10,8 +9,10 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 @Named
 @ViewScoped
@@ -29,7 +30,6 @@ public class ChatBeanHoudaifa implements Serializable {
     public ChatBeanHoudaifa() {
     }
 
-    // Tous les getters et setters restent identiques
     public String getSystemRole() {
         return systemRole;
     }
@@ -74,14 +74,13 @@ public class ChatBeanHoudaifa implements Serializable {
             return null;
         }
 
-        this.reponse = "||";
+        // Traitement personnel : Transformations ludiques de texte
+        this.reponse = genererReponseTransformee(question);
 
         if (this.conversation.isEmpty()) {
-            this.reponse += systemRole.toUpperCase(Locale.FRENCH) + "\n";
+            this.reponse = "🎲 Mode de transformation : " + systemRole.toUpperCase(Locale.FRENCH) + "\n" + this.reponse;
             this.systemRoleChangeable = false;
         }
-
-        this.reponse += question.toLowerCase(Locale.FRENCH) + "||";
 
         afficherConversation();
         return null;
@@ -93,6 +92,64 @@ public class ChatBeanHoudaifa implements Serializable {
 
     private void afficherConversation() {
         this.conversation.append("== User:\n").append(question).append("\n== Serveur:\n").append(reponse).append("\n");
+    }
+
+    private String genererReponseTransformee(String texte) {
+        // Transformation 1 : Palindrome
+        String palindrome = creerPalindrome(texte);
+
+        // Transformation 2 : Compte des lettres
+        int nombreLettres = compterLettres(texte);
+
+        // Transformation 3 : Anagramme
+        String anagramme = genererAnagramme(texte);
+
+        // Construction de la réponse ludique
+        return String.format("""
+            🧩 Transformations ludiques de votre texte :
+            
+            ✨ Palindrome : %s
+            🔤 Nombre de lettres : %d
+            🔀 Anagramme possible : %s
+            
+            Bonus : %s
+            """,
+                palindrome,
+                nombreLettres,
+                anagramme,
+                genererBonusAleatoire()
+        );
+    }
+
+    private String creerPalindrome(String texte) {
+        // Créer un palindrome simplifié
+        String nettoye = texte.replaceAll("[^a-zA-Z]", "").toLowerCase();
+        return nettoye + new StringBuilder(nettoye).reverse();
+    }
+
+    private int compterLettres(String texte) {
+        return texte.replaceAll("[^a-zA-Z]", "").length();
+    }
+
+    private String genererAnagramme(String texte) {
+        // Simplification : prend les premières lettres en ordre inverse
+        String nettoye = texte.replaceAll("[^a-zA-Z]", "").toLowerCase();
+        if (nettoye.length() <= 1) return nettoye;
+
+        char[] lettres = nettoye.toCharArray();
+        Arrays.sort(lettres);
+        return new String(lettres);
+    }
+
+    private String genererBonusAleatoire() {
+        String[] bonus = {
+                "🍀 Chance du jour : Un sourire vous attend !",
+                "🚀 Inspiration : Votre créativité explose aujourd'hui !",
+                "🌈 Pensée positive : Tout est possible !",
+                "🧠 Défi mental : Résolvez un petit puzzle aujourd'hui !",
+                "🌟 Motivation : Vous êtes plus fort que vous ne le pensez !"
+        };
+        return bonus[new Random().nextInt(bonus.length)];
     }
 
     public List<SelectItem> getSystemRoles() {
